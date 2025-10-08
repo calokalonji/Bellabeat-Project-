@@ -22,7 +22,7 @@ My findings were later presented to the Bellabeat executive team, with actionabl
 
 ---
 
-## 🧹 Data Preparation
+##  Data Preparation
 
 I sourced **public Fitbit fitness tracker data** collected from 33 eligible users via Amazon Mechanical Turk. The dataset contained 18 CSV files covering daily, hourly, and minute-level activity logs.  
 
