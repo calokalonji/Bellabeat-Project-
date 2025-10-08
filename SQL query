@@ -1,0 +1,591 @@
+-- Initial Database Restructuring and Renaming
+--  Drop Redundant/Wide Format Tables
+DROP TABLE IF EXISTS "minuteCaloriesWide_merged";
+DROP TABLE IF EXISTS "minuteStepsWide_merged";
+DROP TABLE IF EXISTS "minuteIntensitiesWide_merged";
+
+
+----  Renaming Tables to Standardised Names 
+
+EXEC sp_rename 'DailyActivity_merged', 'DailyActivity';
+GO
+EXEC sp_rename 'dailySteps_merged', 'DailySteps';
+GO
+EXEC sp_rename 'dailyCalories_merged', 'DailyCalories';
+GO
+EXEC sp_rename 'dailyIntensities_merged', 'DailyIntensities';
+GO
+EXEC sp_rename 'dailySteps_merged', 'DailySteps';
+GO
+EXEC sp_rename 'hourlyIntensities_merged', 'HourlyIntensities';
+GO
+EXEC sp_rename 'hourlyCalories_merged', 'HourlyCalories';
+GO
+EXEC sp_rename 'heartrate_seconds_merged', 'SecondHeartrate';
+GO
+EXEC sp_rename 'minuteCaloriesNarrow_merged', 'MinuteCalories';
+GO
+EXEC sp_rename 'minuteStepsNarrow_merged', 'MinuteSteps';
+GO
+EXEC sp_rename 'minuteIntensitiesNarrow_merged', 'MinuteIntensities';
+GO
+EXEC sp_rename 'minuteMETsNarrow_merged', 'MinuteMETs';
+GO
+EXEC sp_rename 'sleepDay_merged', 'DailySleep';
+GO
+EXEC sp_rename 'minuteSleep_merged', 'MinuteSleep';
+GO
+EXEC sp_rename 'weightLogInfo_merged', 'WeightLog';
+GO
+EXEC sp_rename 'hourlySteps_merged', 'hourlySteps';
+GO
+
+
+---  Renaming Columns for Clarity and Consistency 
+
+-- DailyActivity
+EXEC sp_rename 'DailyActivity.ActivityDate', 'Date', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.TotalSteps', 'TotalSteps', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.VeryActiveDistance', 'ActiveDistance_Very', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.ModeratelyActiveDistance', 'ActiveDistance_Moderate', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.LightActiveDistance', 'ActiveDistance_Light', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.SedentaryActiveDistance', 'ActiveDistance_Sedentary', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.VeryActiveMinutes', 'ActiveMinutes_Very', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.FairlyActiveMinutes', 'ActiveMinutes_Fairly', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.LightlyActiveMinutes', 'ActiveMinutes_Lightly', 'COLUMN';
+GO
+EXEC sp_rename 'DailyActivity.SedentaryMinutes', 'ActiveMinutes_Sedentary', 'COLUMN';
+GO
+
+-- Droping redundant distance columns
+ALTER TABLE "DailyActivity" DROP COLUMN IF EXISTS "TrackerDistance";
+ALTER TABLE "DailyActivity" DROP COLUMN IF EXISTS "LoggedActivitiesDistance";
+
+-- DailySleep
+EXEC sp_rename 'DailySleep.SleepDay', 'Date', 'COLUMN';
+GO
+-- WeightLog
+EXEC sp_rename 'WeightLog.Date', 'LogDateTime', 'COLUMN';
+GO
+EXEC sp_rename 'WeightLog.WeightKg', 'Weight_Kg', 'COLUMN';
+GO
+EXEC sp_rename 'WeightLog.WeightPounds', 'Weight_lbs', 'COLUMN';
+GO
+EXEC sp_rename 'WeightLog.BMI', 'BodyMassIndex', 'COLUMN';
+GO
+EXEC sp_rename 'IsManualreport', 'ManualReport', 'COLUMN';
+GO
+
+
+-- HourlySteps
+EXEC sp_rename 'HourlySteps.ActivityHour', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'HourlySteps.StepTotal', 'Steps', 'COLUMN';
+GO
+EXEC sp_rename 'HourlyIntensities.ActivityHour', 'DateTime', 'COLUMN';
+GO
+-- HourlyCalories
+EXEC sp_rename 'HourlyCalories.ActivityHour', 'DateTime', 'COLUMN';
+GO
+-- SecondHeartrate
+EXEC sp_rename 'SecondHeartrate.Time', 'DateTime', 'COLUMN';
+GO
+
+-- Minute column
+EXEC sp_rename 'MinuteSteps.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteSteps.Steps', 'StepsValue', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteCalories.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteIntensities.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteMETs.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+
+-- MinuteSleep Column Rename & Drop Column
+EXEC sp_rename 'MinuteSleep.date', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteSleep.value', 'SleepStage', 'COLUMN';
+GO
+ALTER TABLE MinuteSleep DROP COLUMN logId;
+GO
+
+-- Modified date format by adding a temporary new column with the correct data type (DATE) 
+ALTER TABLE DailyActivity ADD ActivityDate_New DATE;
+GO
+
+ALTER TABLE DailyActivity DROP COLUMN ActivityDate;
+---
+
+GO
+EXEC sp_rename 'DailyActivity.ActivityDate_New', 'Date', 'COLUMN';
+GO
+
+EXEC sp_rename 'MinuteSteps.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteSteps.Steps', 'StepsValue', 'COLUMN';
+GO
+
+EXEC sp_rename 'MinuteCalories.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteIntensities.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteMETs.ActivityMinute', 'DateTime', 'COLUMN';
+GO
+
+-- MinuteSleep Column Rename & Drop Column
+EXEC sp_rename 'MinuteSleep.date', 'DateTime', 'COLUMN';
+GO
+EXEC sp_rename 'MinuteSleep.value', 'SleepStage', 'COLUMN';
+GO
+
+
+
+-- Type and Format Conversions
+
+--  Daily Tables
+ALTER TABLE HourlySteps ADD DateTime_New DATETIME;
+GO
+
+--   Convert datetime string 
+
+ALTER TABLE HourlySteps DROP COLUMN DateTime;
+GO
+EXEC sp_rename 'HourlySteps.DateTime_New', 'DateTime', 'COLUMN';
+GO
+
+--  WeightLog
+ALTER TABLE WeightLog ADD ManualReport_New BIT;
+GO
+
+
+--Exploring total number of distinct users
+
+Select COUNT(DISTINCT Id) as Distinct_Users 
+From SecondHeartrate
+--14 distinct users
+
+
+Select COUNT(DISTINCT Id) as Distinct_Users 
+From DailySleep
+--24 distinct users
+
+Select COUNT(DISTINCT Id) as Distinct_Users 
+From WeightLog
+--8 distinct users
+
+---Data Cleaning and Integrity
+
+-- Deduplicate DailyActivity (unique on Id and Date)
+WITH DuplicateRows AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY Id, Date
+            ORDER BY Calories DESC
+        ) AS rn
+    FROM
+        DailyActivity
+)
+DELETE FROM DuplicateRows
+WHERE rn > 1;
+
+--Checking for duplicates in DailySleep
+SELECT id, Date, TotalSleepRecords, Count(*)
+FROM  DailySleep
+GROUP BY id, Date, TotalSleepRecords
+HAVING Count(*) > 1;
+---3 rows
+--Deleting duplicate
+WITH DuplicateRows AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY Id, Date
+            ORDER BY TotalSleepRecords DESC
+        ) AS rn
+    FROM
+        DailySleep
+)
+DELETE FROM DuplicateRows
+WHERE rn > 1;
+--------
+SELECT id, ActivityDay, StepTotal, Count(*)
+FROM  DailySteps
+GROUP BY id, ActivityDay, StepTotal
+HAVING Count(*) > 1;
+---none
+-----------
+
+SELECT id, Date, TotalSleepRecords, Count(*)
+FROM  DailySleep
+GROUP BY id, Date, TotalSleepRecords
+HAVING Count(*) > 1;
+
+--------------------------------------------------------------------------------------------------
+
+--  Handling Invalid Data and Outliers 
+
+DELETE FROM "DailySleep"
+WHERE "TotalMinutesAsleep" > "TotalTimeInBed";
+
+DELETE FROM "DailyActivity"
+WHERE "TotalSteps" <= 0;
+
+DELETE FROM "SecondHeartrate"
+WHERE value  < 40 OR value  > 220;
+
+UPDATE "DailyActivity"
+SET "totalsteps" = 40000
+WHERE "totalsteps" > 40000;
+
+--------------------------------------------------------------------------------------------------
+
+-- Handling Missing Values (NULLs)
+
+DELETE FROM "WeightLog"
+WHERE "Weight_kg" IS NULL OR "BodyMassIndex" IS NULL;
+
+--------------------------------------------------------------------------------------------------
+
+--  Data Integrity (Setting Primary Keys) 
+s
+ALTER TABLE "DailyActivity" ADD PRIMARY KEY ( "Date");
+ALTER TABLE "DailySleep" ADD PRIMARY KEY ( "Date");
+ALTER TABLE "WeightLog" ADD PRIMARY KEY ( "LogDateTime");
+
+ALTER TABLE "HourlySteps" ADD PRIMARY KEY ( "DateTime");
+ALTER TABLE "MinuteSteps" ADD PRIMARY KEY ( "DateTime");
+ALTER TABLE "SecondHeartrate" ADD PRIMARY KEY ( "DateTime");
+
+ALTER TABLE DailyActivity ALTER COLUMN Id BIGINT NOT NULL;
+GO
+ALTER TABLE DailyActivity ALTER COLUMN Date DATE NOT NULL;
+GO
+
+ALTER TABLE DailySleep ALTER COLUMN Id BIGINT NOT NULL;
+GO
+ALTER TABLE DailySleep ALTER COLUMN Date DATE NOT NULL;
+GO
+
+ALTER TABLE WeightLog ALTER COLUMN LogDateTime DATETIME NOT NULL;
+GO
+
+ALTER TABLE HourlySteps ALTER COLUMN DateTime DATETIME NOT NULL;
+GO
+
+ALTER TABLE MinuteSteps ALTER COLUMN DateTime DATETIME NOT NULL;
+GO
+
+ALTER TABLE SecondHeartrate ALTER COLUMN DateTime DATETIME NOT NULL;
+GO
+
+
+-----Classify users based on their average steps/day.--------
+SELECT
+    T1.id,
+    AVG(CAST(T1.TotalSteps AS INT)) AS avg_daily_steps, 
+    CASE
+        WHEN AVG(CAST(T1.TotalSteps AS INT)) >= 10000 THEN 'Active'      
+        WHEN AVG(CAST(T1.TotalSteps AS INT)) >= 5000 THEN 'Moderately Active' 
+        ELSE 'Sedentary'
+    END AS user_type
+FROM DailyActivity AS T1
+GROUP BY T1.id; 
+----
+--average met per day per user, and compare with the calories burned
+
+Select 
+    temp1.Id, 
+    temp1.DateTime, 
+    sum(CONVERT(FLOAT, temp1.METs)) as sum_mets,
+    temp2.Calories
+From 
+    MinuteMETs as temp1 
+inner join 
+    dailyactivity as temp2 
+    on temp1.Id = temp2.Id and temp1.DateTime = temp2.date 
+Group By 
+    temp1.Id, 
+    temp1.DateTime, 
+    temp2.Calories
+Order By 
+    DateTime
+--
+SELECT CASE WHEN totalsteps >= 10000 THEN 1 ELSE 0 END AS met_goal FROM DailyActivity;
+SELECT TotalSteps, CASE WHEN TotalSteps >= 10000 THEN 'Active' ELSE 'Light' END AS User_Category FROM DailyActivity;
+--Sleep Efficiency 
+----- calculating the proportion of time in bed that was spent asleep
+SELECT 
+    ID, 
+    date,
+    TotalMinutesAsleep,
+    TotalTimeInBed,
+    (CAST(TotalMinutesAsleep AS DECIMAL(5, 2)) / TotalTimeInBed) AS Sleep_Efficiency_Ratio
+FROM DailySleep
+WHERE TotalTimeInBed > 0;
+
+-- Calculating Sleep Efficiency Rate (Derived Variable)
+SELECT TotalMinutesAsleep / (TotalTimeInBed / 60) AS Sleep_Efficiency_Rate
+FROM DailySleep
+WHERE TotalTimeInBed > 0;
+
+-- Recoding Steps into Activity Level Categories
+SELECT 
+    ID, 
+    Date, 
+    TotalSteps,
+    CASE 
+        WHEN TotalSteps >= 10000 THEN 'Highly Active' 
+        WHEN TotalSteps >= 7500 THEN 'Moderately Active'
+        WHEN TotalSteps >= 5000 THEN 'Lightly Active'
+        ELSE 'Sedentary' 
+    END AS User_Activity_Segment
+FROM DailyActivity;
+SELECT
+    Id,
+    LogDateTime,
+    Weight_Kg,
+ 
+    Previous_Date = LAG(LogDateTime, 1) OVER (PARTITION BY Id ORDER BY LogDateTime),
+    Difference_In_Days = DATEDIFF(day, LAG(LogDateTime, 1) OVER (PARTITION BY Id ORDER BY LogDateTime), LogDateTime)
+FROM
+    WeightLog
+WHERE
+    Weight_Kg IS NOT NULL  
+ 
+ORDER BY
+    Id,
+    LogDateTime;
+------------------------------------------------------------------------------------------------------
+SELECT BodyMassIndex, id, weight_kg
+FROM Weightlog
+WHERE Weight_Kg IS NOT NULL;
+----Daily Activity and Sleep Data
+SELECT
+    A.Id,
+    A.Date,
+    A.TotalSteps,
+    S.TotalMinutesAsleep,
+    A.ActiveDistance_Sedentary
+FROM DailyActivity AS A
+INNER JOIN DailySleep AS S ON A.Id = S.Id AND A.Date = S.Date;
+
+---Merging and Blending Datasets
+SELECT * FROM DailyActivity D INNER JOIN DailySleep S ON D.ID = S.ID AND D.Date = S.Date;
+ 
+--------------------
+
+-- Identify potential outliers 
+SELECT *
+FROM DailyActivity
+WHERE CAST(TotalSteps AS INT) > (
+    SELECT AVG(CAST(TotalSteps AS INT)) + 4 * STDEV(CAST(TotalSteps AS INT))
+    FROM DailyActivity
+);
+
+
+-- Trend Investigation: Activity by Day of Week
+SELECT
+    DA.Id,
+ 
+    DATENAME(dw, DA.date) AS Day_of_Week,
+  
+    CASE
+        WHEN DATENAME(dw, DA.date) IN ('Saturday', 'Sunday') THEN 'Weekend'
+        ELSE 'Weekday'
+    END AS day_type,
+     AVG(CAST(DA.totalsteps AS INT)) AS average_daily_steps,
+    AVG(CAST(SL.totalMinutesAsleep AS INT)) AS average_sleep_min
+FROM
+    DailyActivity AS DA
+INNER JOIN
+    DailySleep AS SL
+    ON DA.Id = SL.Id AND DA.Date = CAST(SL.date AS DATE)
+GROUP BY
+    DA.Id,
+    DATENAME(dw, DA.date),
+    CASE
+        WHEN DATENAME(dw, DA.date) IN ('Saturday', 'Sunday') THEN 'Weekend'
+        ELSE 'Weekday'
+    END
+ORDER BY
+    DA.Id,
+    day_type;
+
+-- Trend Analysis and Recoding (avg Steps by Day of Week)
+SELECT
+    DATEPART(dw, DA.Date) AS Day_of_Week_Num,
+    
+    DATENAME(dw, DA.Date) AS Day_of_Week_Name, 
+    
+    AVG(CAST(DA.TotalSteps AS INT)) AS Avg_Steps_Day,
+    
+    AVG(CAST(DA.Calories AS INT)) AS Avg_Calories_Day
+FROM 
+    dbo.DailyActivity AS DA
+GROUP BY 
+    DATEPART(dw, DA.Date),
+    DATENAME(dw, DA.Date)
+ORDER BY 
+    Day_of_Week_Num;  
+
+-- Creating User Activity Segments
+SELECT 
+    ID, 
+    Date, 
+    TotalSteps,
+    CASE 
+        WHEN TotalSteps >= 10000 THEN 'Highly Active' 
+        WHEN TotalSteps >= 7500 THEN 'Moderately Active'
+        WHEN TotalSteps >= 5000 THEN 'Lightly Active'
+        ELSE 'Sedentary' 
+    END AS User_Activity_Segment
+FROM DailyActivity;
+
+
+
+----Trend Investigation: 
+-----Avg Hourly Calories by Hour of Day
+SELECT
+    DATEPART(HOUR, DateTime) AS hour_of_day,
+  AVG(CAST(Calories AS FLOAT)) AS avg_hourly_calories
+    
+FROM   dbo.HourlyCalories
+GROUP BY 
+    DATEPART(HOUR, DateTime)
+ORDER BY 
+    hour_of_day; 
+---------
+
+-- Average calories burned by day of the week
+Select 
+    DATENAME(dw, Date) AS Weekdays,
+    AVG(CAST(totalsteps AS INT)) AS Avg_Steps_Day,
+    AVG(CAST(Calories AS INT)) AS Avg_Calories_Day
+From [dbo].[dailyActivity]
+Group by  DATENAME(dw, Date)
+Order by WeekDays ASC;
+
+
+--------- calculating a 7 day rolling average  for continuous trend analysis
+SELECT
+    id, 
+    date,
+    Calories,
+    AVG(CAST(Calories AS FLOAT)) OVER (
+        PARTITION BY id
+        ORDER BY date
+        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+    ) AS rolling_7_day_avg
+FROM
+    DailyActivity
+ORDER BY
+    id, date;
+
+-----data analysis
+WITH IntegratedDailyData AS (
+    SELECT
+        DA.id,
+        DA.date,
+        DA.totalsteps,
+        DA.calories,
+        SL.TotalMinutesAsleep,
+        SL.TotalTimeInBed,
+        CAST(SL.TotalMinutesAsleep AS DECIMAL) / SL.TotalTimeInBed AS Sleep_Efficiency_Rate
+    FROM
+        DailyActivity AS DA
+    INNER JOIN
+        DailySleep AS SL
+        ON DA.id = SL.id AND DA.date = CAST(SL.date AS DATE)
+    WHERE
+        SL.TotalTimeInBed > 0 
+)
+
+SELECT * FROM IntegratedDailyData;
+
+----- Statistical Analysis - Link Analysis (Weight/BMI vs. Calories)
+SELECT
+    HL.id,
+    AVG(CAST(HL.BodyMassIndex AS FLOAT)) AS avg_bmi,
+    AVG(CAST(HL.Weight_Kg AS FLOAT)) AS avg_weight_kg,
+    AVG(CAST(DA.calories AS FLOAT)) AS avg_daily_calories
+FROM
+    Weightlog AS HL
+INNER JOIN
+    DailyActivity AS DA
+ON
+    HL.id = DA.id
+WHERE
+    HL.BodyMassIndex IS NOT NULL
+    AND HL.Weight_Kg IS NOT NULL
+    AND DA.calories IS NOT NULL
+GROUP BY
+    HL.id
+HAVING
+    1=1 
+--- Relationship Visualization Data (Steps vs. Sleep Efficiency)
+
+	SELECT
+    CASE
+        WHEN DATENAME(dw, date) IN ('Saturday', 'Sunday') THEN 'Weekend'
+        ELSE 'Weekday'
+    END AS Day_Type,
+    AVG(CAST(TotalSteps AS FLOAT)) AS avg_steps_per_day,
+    COUNT(date) AS total_days_recorded
+FROM
+    DailyActivity
+GROUP BY
+    CASE
+        WHEN DATENAME(dw, date) IN ('Saturday', 'Sunday') THEN 'Weekend'
+        ELSE 'Weekday'
+    END
+ORDER BY avg_steps_per_day DESC;
+-----Relationship Visualization Data (Steps vs. Sleep Efficiency
+SELECT
+    DA.id,
+    DA.date,
+    DA.totalsteps,
+    SL.TotalMinutesAsleep,
+    SL.TotalTimeInBed,
+    CAST(SL.TotalMinutesAsleep AS FLOAT) / SL.TotalTimeInBed AS Sleep_Efficiency_Rate
+FROM
+    DailyActivity AS DA
+INNER JOIN
+    DailySleep AS SL
+    ON DA.id = SL.id 
+    AND DA.date = CAST(SL.date AS DATE)
+WHERE
+    DA.totalsteps IS NOT NULL
+    AND SL.TotalMinutesAsleep IS NOT NULL
+    AND SL.TotalTimeInBed > 0 
+ORDER BY
+    DA.id, DA.date;
+	SELECT
+    DA.id,
+    DA.date,
+    DA.totalsteps,
+    SL.TotalMinutesAsleep,
+    SL.TotalTimeInBed
+FROM
+    DailyActivity AS DA
+INNER JOIN
+    DailySleep AS SL
+  
+    ON DA.id = SL.id 
+    AND DA.date = CAST(SL.date AS DATE)
+WHERE
+    DA.TotalSteps IS NOT NULL 
+    AND SL.TotalMinutesAsleep IS NOT NULL
+    AND SL.TotalTimeInBed IS NOT NULL
+ORDER BY
+    DA.id, DA.date;
