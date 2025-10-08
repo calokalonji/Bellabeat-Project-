@@ -1,5 +1,5 @@
 
-# 📊 Bellabeat Smart Device Data Analysis for Growth
+#  Bellabeat Smart Device Data Analysis for Growth
 
 **Role:** Junior Data Analyst, Marketing Analytics Team  
 **Tools Used:** SQL (Microsoft SQL Server), Python, Excel, Power BI  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🧭 Project Overview
+##  Project Overview
 
 As a junior data analyst on Bellabeat’s marketing analytics team, my role was to explore how consumers use smart devices and identify trends that could inform Bellabeat’s marketing strategy. Bellabeat, a tech company focused on women’s wellness, sought to better understand user behaviour through data-driven insights.  
 
@@ -34,11 +34,11 @@ I sourced **public Fitbit fitness tracker data** collected from 33 eligible user
 - **Integrity Checks:** Cross-validated metrics (e.g. ensuring `TotalSteps` matched between daily and hourly logs).  
 - **Aggregation:** Merged granular datasets into a relational SQL schema with four logical tables — *Daily Activity*, *Time-Series Activity*, *Sleep Metrics*, and *Health & Logging*.  
 
-> 🔗 *The full SQL cleaning and schema design process, including scripts for data validation, type conversion, and outlier handling, is available on my [GitHub](#).*
+>  *The full SQL cleaning and schema design process, including scripts for data validation, type conversion, and outlier handling, is available on my [GitHub](#).*
 
 ---
 
-## 🧠 Data Analysis
+##  Data Analysis
 
 The dataset included **33 users’ daily activity data** and **24 users’ sleep data**. Analysis was conducted in SQL and Python (for statistical validation and visualisation).  
 
@@ -64,7 +64,7 @@ Users were also **classified by activity level** using SQL logic:
 
 ---
 
-## 📈 Visualisation and Insights
+##  Visualisation and Insights
 
 Using SQL outputs and Power BI, I created several key visuals to uncover behavioural trends:
 
@@ -82,7 +82,7 @@ Weak correlation between steps and sleep (r = −0.19).
 
 ---
 
-## 💡 Key Marketing Recommendations
+##  Key Marketing Recommendations
 
 1. **Campaign: “Micro-Movement – Break the Sedentary Cycle”**  
    - Focus: Encourage short bursts of movement throughout the day.  
@@ -101,7 +101,7 @@ Weak correlation between steps and sleep (r = −0.19).
 
 ---
 
-## 📊 Executive Dashboard Highlights
+##  Executive Dashboard Highlights
 
 The final Power BI dashboard provided four interactive insights for Bellabeat’s leadership team:
 
@@ -112,7 +112,7 @@ The final Power BI dashboard provided four interactive insights for Bellabeat’
 
 ---
 
-## 🧩 Project Outcome
+##  Project Outcome
 
 This project demonstrated how **SQL-driven data analysis** can uncover meaningful behavioural insights and guide **real-world business decisions**.  
 
@@ -121,4 +121,4 @@ This project demonstrated how **SQL-driven data analysis** can uncover meaningfu
 - Applied advanced **data cleaning, correlation analysis, and trend visualisation**.  
 - Delivered **data-driven marketing recommendations** supported by quantitative insight.  
 
-> 🔗 Full analysis process, SQL scripts, and Power BI dashboard visuals are available on my **[GitHub portfolio](#)**.
+>  Full analysis process, SQL scripts, and Power BI dashboard visuals are available on my **[GitHub portfolio](#)**.
